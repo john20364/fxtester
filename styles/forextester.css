@@ -87,7 +87,7 @@ p, button {
 }
 
 #view1 {
-    height:400px;
+    height:600px;
     flex:1;
     background: #808080;
     border-style: solid;
@@ -99,7 +99,7 @@ p, button {
 }
 
 #view2 {
-    height:400px;
+    height:600px;
     flex:1;
     background: #808080;
     border-style: solid;

@@ -1,5 +1,18 @@
 function FTView() {
     let viewmodel = new FTViewModel();
+    let handler = undefined;
+
+    viewmodel.onchange(() => {
+        updateScreen();
+    });
+    
+    FTView.prototype.onchange = function (callback) {
+        handler = callback;
+    }
+    
+    function viewchanged () {
+        if (handler !== undefined) handler();    
+    }
     
     function menuitemclick(elm) {
         if (elm.dataset.group === "period") {
@@ -214,8 +227,4 @@ function FTView() {
             selectedview.childNodes[1].style.height = '0%';
         }
     }
-    
-    viewmodel.onchange(() => {
-        updateScreen();
-    });
 }

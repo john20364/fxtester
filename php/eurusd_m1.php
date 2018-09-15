@@ -1,5 +1,5 @@
 <?php
-    require_once('json_forex_data.php');
+    require_once('json_forex_data2.php');
     header("Content-Type: application/json");
 
     if (!isset($_POST['date']) ||
