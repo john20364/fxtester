@@ -3,12 +3,9 @@ function FTControl(viewobj, modelobj) {
     let model = modelobj;
     
     view.onchange(() => {
-        
     });
     
     model.onchange(() => {
-        console.log("model changed");
+        view.forexdata(model.data());
     });
-
-    model.getdata("2017");
 }

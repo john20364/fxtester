@@ -1,16 +1,88 @@
 function FTView() {
+    let viewdata = {
+        window:[
+            {canvas:undefined, context:undefined},
+            {canvas:undefined, context:undefined}],
+        subwindow:[
+            {canvas:undefined, context:undefined},
+            {canvas:undefined, context:undefined}]
+    };
+    
     let viewmodel = new FTViewModel();
+    let viewmanager = new FTViewManager();
+    let viewdatamanager = new FTViewDataManager();
     let handler = undefined;
 
-    viewmodel.onchange(() => {
-        updateScreen();
+    viewmodel.onchange((state, idx=0) => {
+        switch (state) {
+            case viewmodel.state.DATA_CHANGED:
+                break;
+            case viewmodel.state.SELECT:
+                break;
+            case viewmodel.state.TOGGLE_FULL_WINDOW:
+                setViewToggleButtonState("0", viewmodel.isFullscreenByIndex(idx))
+                break;
+            case viewmodel.state.TOGGLE_SUB_WINDOW:
+                setViewToggleButtonState("1", viewmodel.isSubwindowIndex(idx));
+                break;
+            case viewmodel.state.PERIOD_CHANGED:
+                setPeriodButtonState(viewmodel.PeriodByIndex(idx));
+                break;
+        }
+        draw();
+        viewdatamanager.drawCharts(viewdata, viewmodel);
     });
+
+    FTView.prototype.onkeydown = (e) => {
+        switch (e.keyCode) {
+            case LEFT_ARROW:
+                viewmodel.prevCandle();
+                break;
+            case RIGHT_ARROW:
+                viewmodel.nextCandle();
+                break;
+            case UP_ARROW:
+                break;
+            case DOWN_ARROW:
+                break;
+            case KEY_SPACE:
+                viewmodel.nextCandle();
+                break;
+            case KEY_PLUS:
+                viewmodel.increaseCandle();
+                break;
+            case KEY_MINUS:
+                viewmodel.decreaseCandle();
+                break;
+        }
+    }
     
+    FTView.prototype.forexdata = (forexdata) => {
+        viewmodel.setData(forexdata);
+    }
+    
+    FTView.prototype.onresize = () => {
+        draw();
+        viewdatamanager.drawCharts(viewdata, viewmodel);
+    }
+    
+    function draw () {
+        let idx = viewmodel.viewIndexSelected();
+        let fullscreen = viewmodel.isFullscreenByIndex(idx);
+        let subwindow = viewmodel.isSubwindowIndex(idx);
+        
+        setPeriodButtonState(viewmodel.PeriodByIndex(idx));
+        setViewToggleButtonState("0", fullscreen);
+        setViewToggleButtonState("1", subwindow);
+        
+        viewmanager.drawWindows(viewdata, viewmodel);
+    }
+
     FTView.prototype.onchange = function (callback) {
         handler = callback;
     }
     
-    function viewchanged () {
+    function doNotify () {
         if (handler !== undefined) handler();    
     }
     
@@ -45,32 +117,14 @@ function FTView() {
         for (let i=0; i<nodes.length; i++) {
             if (nodes[i].className==="menuitemcontainer") {
                 let node = nodes[i].childNodes[0];
-                node.onclick = () => {menuitemclick(node);};
+                node.onclick = () => menuitemclick(node);
             }
         }
     }
     
-    function viewclick(view) {
-        switch(view.id) {
-            case "view1" :
-                viewmodel.selectview(0);
-                break;
-            case "view2" :
-                viewmodel.selectview(1);
-                break;
-        }
-    }
-    
-    function addViewOnclick() {
-        let view1 = JCB._("view1");
-        let view2 = JCB._("view2");
-        view1.onclick = () => {viewclick(view1);};
-        view2.onclick = () => {viewclick(view2);};
-    }
-    
     function createMenu() {
         let output = '';
-        output += '<div id=menubar class="menubar">';
+        output += '<div id="menubar" class="menubar">';
 
         output += menubuttoncode("period", "0", "M1");
         output += menubuttoncode("period", "1", "M5");
@@ -88,35 +142,32 @@ function FTView() {
         output += menubuttoncode("view", "1", "Ind. Win.");
 
         output += '</div>'; // menubar div
-        output += '<div class="headerspace"></div>'; // header space div
 
-    //	var parent = JCB._('dashboarditems');
-    //	JCB.empty(parent);
-        return output;
+        document.body.innerHTML += output;
     }
     
-    function createView() {
-        let output = '';
-        output +=
-            '<div id="viewcontainer" class="viewcontainerrow">'+
-                '<div id="view1">'+
-                    '<div class="candleview1">'+
-//                        '<canvas class="canvasview"></canvas>'+
-                    '</div>'+
-                    '<div class="indicatorview1">'+
-//                        '<canvas class="canvasview"></canvas>'+
-                    '</div>'+
-                '</div>'+
-                '<div id="view2">'+
-                    '<div class="candleview2">'+
-//                        '<canvas class="canvasview"></canvas>'+
-                    '</div>'+
-                    '<div class="indicatorview2">'+
-//                        '<canvas class="canvasview"></canvas>'+
-                    '</div>'+
-                '</div>'+
-            '</div>';
-        return output;
+    function createWindows() {
+        let output = 
+            '<canvas id="window1" class="window1"></canvas>'+
+            '<canvas id="window2" class="window2"></canvas>'+
+            '<canvas id="subwindow1" class="subwindow1"></canvas>'+
+            '<canvas id="subwindow2" class="subwindow2"></canvas>';
+        
+        document.body.innerHTML += output;
+        
+        viewdata.window[0].canvas = JCB._("window1");
+        viewdata.window[1].canvas = JCB._("window2");
+        viewdata.subwindow[0].canvas = JCB._("subwindow1");
+        viewdata.subwindow[1].canvas = JCB._("subwindow2");
+        
+        for (let i=0; i<2; i++) {
+            viewdata.window[i].canvas.onclick = (e) => {
+                viewmodel.selectview(i);
+            }
+            viewdata.subwindow[i].canvas.onclick = (e) => {
+                viewmodel.selectview(i);
+            }
+        }
     }
     
     function setPeriodButtonState(period) {
@@ -150,81 +201,11 @@ function FTView() {
     }
     
     function initialize() {
-        document.body.innerHTML += createMenu();
+        createMenu();
+        createWindows();
         addMenuOnclick();
-        let node = document.body.appendChild(document.createElement('div'));
-        node.id = "mainview";
-        node.innerHTML += createView();
-        addViewOnclick();
-
-        updateScreen();
-        
-        // Check if subwindow is visible in the window
-        // without focus
-        let idx = viewmodel.viewIndexSelected();
-
-        let subwindow = undefined;
-        let view = undefined;
-        if (idx === 0) {
-            subwindow = viewmodel.isSubwindowIndex(1);
-            view = JCB._("view2");
-        } else {
-            subwindow = viewmodel.isSubwindowIndex(0);
-            view = JCB._("view1");
-        }
-
-        if (subwindow) {
-            view.childNodes[0].style.height = '80%';
-            view.childNodes[1].style.height = '20%';
-        } else {
-            view.childNodes[0].style.height = '100%';
-            view.childNodes[1].style.height = '0%';
-        }
+        draw();
     }
-    
     
     initialize();
-    
-    function updateScreen() {
-        let idx = viewmodel.viewIndexSelected();
-        let selectedview = undefined;
-        if (idx === 0) {
-            JCB._("view1").className = "selected";
-            JCB._("view2").className = "";
-            selectedview = JCB._("view1");
-        } else {
-            JCB._("view1").className = "";
-            JCB._("view2").className = "selected";
-            selectedview = JCB._("view2");
-        }
-        
-        let period = viewmodel.PeriodByIndex(idx);
-        let fullscreen = viewmodel.isFullscreenByIndex(idx);
-        let subwindow = viewmodel.isSubwindowIndex(idx);
-        
-        setPeriodButtonState(period);
-        setViewToggleButtonState("0", fullscreen);
-        setViewToggleButtonState("1", subwindow);
-
-        if (fullscreen) {
-            if (idx === 0) {
-                JCB._("view1").style.display = "block";
-                JCB._("view2").style.display = "none";
-            } else {
-                JCB._("view1").style.display = "none";
-                JCB._("view2").style.display = "block";
-            }
-        } else {
-            JCB._("view1").style.display = "block";
-            JCB._("view2").style.display = "block";
-        }
-        
-        if (subwindow) {
-            selectedview.childNodes[0].style.height = '80%';
-            selectedview.childNodes[1].style.height = '20%';
-        } else {
-            selectedview.childNodes[0].style.height = '100%';
-            selectedview.childNodes[1].style.height = '0%';
-        }
-    }
 }

@@ -77,18 +77,16 @@ p, button {
 }
 
 .viewcontainerrow {
+/*
     display: flex;
     flex-direction: row;
-}
-
-.viewcontainercolumn {
-    display: flex;
-    flex-direction: column;
+*/
+    width:100%;
 }
 
 #view1 {
     height:600px;
-    flex:1;
+/*    flex:1;*/
     background: #808080;
     border-style: solid;
     border-color: dimgray;
@@ -100,7 +98,7 @@ p, button {
 
 #view2 {
     height:600px;
-    flex:1;
+/*    flex:1;*/
     background: #808080;
     border-style: solid;
     border-color: dimgray;
@@ -139,3 +137,50 @@ p, button {
     height:100%;
     background: #555555;
 }
+/*===============================================================*/
+        #window1 {
+            position: fixed;
+            z-index: 1;
+            top: 50px;
+            left:0;
+            overflow-x: hidden;
+        }
+
+        #window2 {
+            position: fixed;
+            z-index: 1;
+            top: 50px;
+            right:0;
+            overflow-x: hidden;
+        }
+
+        #subwindow1 {
+            position: fixed;
+            z-index: 1;
+            top: 550px;
+            left:0;
+            overflow-x: hidden;
+        }
+
+        #subwindow2 {
+            position: fixed;
+            z-index: 1;
+            top: 550px;
+            right:0;
+            overflow-x: hidden;
+        }
+
+        .window1 {
+            background-color: chartreuse;
+        }
+        .window2 {
+            background-color: aquamarine;
+        }
+        .subwindow1 {
+            background-color: blueviolet;
+        }
+        .subwindow2 {
+            background-color: darkorange;
+        }
+
+/*===============================================================*/

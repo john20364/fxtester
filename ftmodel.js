@@ -1,5 +1,10 @@
 function FTModel() {
+    let data = undefined;
     let handler = undefined;
+    
+    FTModel.prototype.data = function () {
+        return data;
+    }
     
     FTModel.prototype.onchange = function (callback) {
         handler = callback;
@@ -10,27 +15,11 @@ function FTModel() {
         if (handler !== undefined) handler();
     }
     
-    function printjson(data) {
-        let node = document.lastChild.appendChild(
-            document.createElement('div'));
-
-        let log = data; 
-
-        log = log.replace(/[[]/g, "[<br/>");
-        log = log.replace(/,/g, ",<br/>");
-        log = log.replace(/},/g, "},<br/>");
-
-        node.innerHTML = log;
-    }
-
-    FTModel.prototype.getdata = function (year) {
-        var ajax = JCB.CreateAjaxObj("POST", "php/eurusd_m1.php");
+    FTModel.prototype.getforexdata = function (year) {
+        let ajax = JCB.CreateAjaxObj("POST", "php/eurusd_m1.php");
         ajax.onreadystatechange = function() {
             if (JCB.isAjaxRequestReady(ajax)) {
-
-//                console.log(ajax.responseText);
-                let data = JSON.parse(ajax.responseText);
-                console.log(data);
+                data = JSON.parse(ajax.responseText);
                 modelchanged();
             }
         }
