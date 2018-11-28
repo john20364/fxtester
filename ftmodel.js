@@ -24,6 +24,6 @@ function FTModel() {
             }
         }
 
-        ajax.send("date=2017-01-01&time=00:00&candles=100000");
+        ajax.send("date="+year+"-01-01&time=00:00&candles=1000");
     }
 }

@@ -12,6 +12,6 @@
     $time = $_POST['time'];
     $candles = $_POST['candles'];
         
-    echo getCandles('EURUSD_M1',$date,$time,$candles);
+    echo getCandles('EURUSD_h1',$date,$time,$candles);
 //    echo 'EURUSD M1 '.$date.' - '.$candles.'<br/>';
 ?>

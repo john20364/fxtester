@@ -9,7 +9,7 @@ window.onload = function () {
     FXTester.model = new FTModel();
     FXTester.control = new FTControl(FXTester.view, FXTester.model);
 
-    FXTester.model.getforexdata("2017");
+    FXTester.model.getforexdata("2016");
 };
 
 window.onkeydown = (e) => FXTester.view.onkeydown(e);

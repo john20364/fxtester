@@ -56,7 +56,8 @@
     function getCandles($table,$date,$time,$candles) {
         $conn = mysqli_connect("localhost", "john", "forex", "forex");
         
-        $result = mysqli_query($conn, 'SELECT * FROM '.$table.' LIMIT '.$candles);
+        $result = mysqli_query($conn, 'SELECT * FROM '.$table.
+           ' WHERE date >= "'.$date.'" LIMIT '.$candles);
         
         $data = array();
         

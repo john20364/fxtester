@@ -1,5 +1,11 @@
 function FTViewDataManager () {
     function drawchart(idx, viewdata, viewmodel) {
+        if (viewmodel.forexdata().length === 0) return;
+//        let arr = viewmodel.forexdata();
+//        let len = arr.length;
+//        console.log(len);
+//        console.log(arr[len-1].date);
+        
         let c = viewdata.window[idx].canvas;
         let ctx = viewdata.window[idx].context;
 
@@ -37,8 +43,8 @@ function FTViewDataManager () {
         // Draw the candles
         for (let i=0; i < number_of_candles; i++) {
             let candle = viewmodel.forexdata()[viewmodel.candleIndex(idx) + i];
-            let open = Math.round(((candle.close-lowest)/yscaler) * height);
-            let close = Math.round(((candle.open-lowest)/yscaler) * height);
+            let open = Math.round(((candle.open-lowest)/yscaler) * height);
+            let close = Math.round(((candle.close-lowest)/yscaler) * height);
             let high = Math.round(((candle.high-lowest)/yscaler) * height);
             let low = Math.round(((candle.low-lowest)/yscaler) * height);
             let xpos = i*(cw+chw);
@@ -55,7 +61,7 @@ function FTViewDataManager () {
                 
                 if (open < close) {
                     // draw bulish body
-                    ctx.fillStyle = '#00ff00';
+                    ctx.fillStyle = colorToHexStr(50,205,50);
                     ctx.fillRect(dx+xpos, dy+open, cw, close-open);
                     ctx.beginPath();
                     ctx.strokeRect(dx+xpos, dy+open, cw, close-open);
@@ -74,7 +80,7 @@ function FTViewDataManager () {
                     ctx.stroke();
                 } else {
                     // draw bearish body
-                    ctx.fillStyle = '#ff0000';
+                    ctx.fillStyle = colorToHexStr(255,0,0);
                     ctx.fillRect(dx+xpos, dy+close, cw, open-close);
                     ctx.beginPath();
                     ctx.strokeRect(dx+xpos, dy+open, cw, close-open);
